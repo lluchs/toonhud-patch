@@ -1,0 +1,10 @@
+[package]
+name = "toonhud-patch"
+version = "0.1.0"
+authors = ["Lukas Werling <lukas.werling@gmail.com>"]
+
+[dependencies]
+rquery = "0.2.1"
+itertools = "0.4.16"
+regex = "0.1"
+lazy_static = "0.2.1"
