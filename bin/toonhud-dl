@@ -1,0 +1,29 @@
+#!/bin/zsh
+
+set -eu
+
+steam_id=
+theme_id=${1?First parameter: theme id} # e.g. C618ZBVA
+target_dir=${2?Second parameter: target directory (will create or replace toonhud subdir)}
+
+cd $(mktemp -d)
+pwd
+
+echo Downloading…
+curl 'http://toonhud.com/overrides.xml' > overrides.xml
+curl -XPOST 'http://toonhud.com/ajax/getTheme.php' -d "themeID=$theme_id" > theme.xml
+dlsource=$(curl "http://toonhud.com/ajax/dlsource.php?steamid=$steam_id")
+curl "$dlsource" > toonhud.zip
+
+echo Unpacking…
+unzip toonhud.zip
+
+echo Patching…
+toonhud-patch
+
+echo Installing…
+rm -rf "$target_dir/toonhud"
+mv toonhud "$target_dir"
+
+echo Cleaning up…
+rm -rf $(pwd)
