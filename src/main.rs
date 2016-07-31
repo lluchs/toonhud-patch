@@ -26,7 +26,20 @@ fn main() {
         println!("field: {} => {}", id, value);
 
         let actions = overrides.select_all(&format!("override[id={}] action", id)).unwrap();
-        for action in actions {
+        'actions: for action in actions {
+            if let Ok(overrides) = action.select_all("requires override") {
+                for o in overrides {
+                    let rid = o.text();
+                    let selected = match o.attr("selected").map(|s| s.as_ref()) {
+                        Some("true") => true, Some("false") => false,
+                        _ => panic!("invalid requires {}", rid)
+                    };
+                    if theme.select(&format!("field[id={}]", rid)).is_ok() != selected {
+                        println!("  skipping action {} due to missing requirement ({})", action.attr("type").unwrap(), rid);
+                        continue 'actions;
+                    }
+                }
+            }
             apply_action(&id, &action, value);
         }
     }
